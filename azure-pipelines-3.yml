@@ -82,4 +82,41 @@ stages:
               imagePullSecrets: '$(imagePullSecret)'
               rolloutStatusTimeout: '120'
 
+- stage: DeployToProd
+  displayName: Production Stage
+  dependsOn: DeployToDev
+  jobs:
+  - deployment: DeployToDev
+    displayName: DeployToProd
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: 'createSecret'
+              kubernetesServiceConnection: 'my-aks-cluster-vish'
+              namespace: 'vish'
+              secretType: 'dockerRegistry'
+              secretName: '$(imagePullSecret)'
+              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster(Prod)
+            inputs:
+              action: 'deploy'
+              kubernetesServiceConnection: 'my-aks-cluster-vish'
+              namespace: 'vish'
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              containers: '$(containerRegistry)/$(imageRepository):$(tag)'
+              imagePullSecrets: '$(imagePullSecret)'
+              rolloutStatusTimeout: '120'
+
+
   
