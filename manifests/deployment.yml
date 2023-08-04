@@ -1,19 +1,19 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: akhildotnet 
+  name: dotnetapp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: akhildotnet
+      app: vishnu
   template:
     metadata:
       labels:
-        app: akhildotnet 
+        app: vishnu
     spec:
       containers:
-        - name: akhildotnet 
-          image: mypvtrepo.azurecr.io/akhildotnet
+        - name: vishnudotnet
+          image: mypvtcontainer.azurecr.io/vishnutkdotnetapp
           ports:
           - containerPort: 5000
