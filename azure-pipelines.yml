@@ -3,7 +3,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- main
+- master
 
 resources:
 - repo: self
@@ -19,7 +19,8 @@ variables:
   imagePullSecret: 'mypvtrepo17562003-auth'
 
   # Agent VM image name
-  name: Akhil-DevOps-Pipeline
+  pool:
+    name: my-pool
 
   # Name of the new namespace being created to deploy the PR changes.
   k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
@@ -31,7 +32,7 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      name: Akhil-DevOps-Pipeline
+      name: my-pool
     steps:
     - task: Docker@2
       displayName: Build and push an image to container registry
@@ -55,7 +56,7 @@ stages:
     condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
     displayName: Deploy
     pool:
-      name: Akhil-DevOps-Pipeline
+      name: my-pool
     environment: 'AKHIL1399dotnet-1899.mynamespace'
     strategy:
       runOnce:
@@ -84,7 +85,7 @@ stages:
     displayName: Deploy Pull request
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
     pool:
-      name: Akhil-DevOps-Pipeline
+      name: my-pool
 
     environment: 'AKHIL1399dotnet-1899.$(k8sNamespaceForPR)'
     strategy:
