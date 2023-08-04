@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: akhildotnet 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: akhildotnet
+  template:
+    metadata:
+      labels:
+        app: akhildotnet 
+    spec:
+      containers:
+        - name: akhildotnet 
+          image: mypvtrepo.azurecr.io/akhildotnet
+          ports:
+          - containerPort: 5000

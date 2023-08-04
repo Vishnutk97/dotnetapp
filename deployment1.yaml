@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnet
+  namespace: mynamespace
+  labels:
+    app: dotnet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dotnet   # Use the same label "dotnet" here
+  template:
+    metadata:
+      labels:
+        app: dotnet  # Use the same label "dotnet" here
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - my-app
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - dotnet
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: my-dotnet
+          image: mypvtrepo.azurecr.io/akhil/my-image:v1.0.0
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 60
+      imagePullSecrets:
+        - name: my-secrets
+
